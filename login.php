@@ -1,4 +1,37 @@
-<?php session_start(); ?>
+<?php
+session_start();
+include "Connection.php";
+
+if(!isset($_POST['login'])) { 
+    $email = $_POST['email'];
+    $pass = $_POST['password'];
+
+    // query the user 
+    $sql = "SELECT * FROM users WHERE email='$email'";
+    $result = $conn->query($sql);
+
+    if($result->num_rows > 0) { 
+        $row = $result->fetch_assoc();
+
+    //verify password
+    if (password_verify($pass, $row['password'])) { 
+        $_SESSION['username'] = $row['username'];
+        header("Location: dashboard.php");
+    } else { 
+        $error = "INVALID PASSWORD";
+    
+    }
+} else { 
+    $error = "EMAIL NOT FOHND";
+
+    }
+}
+// CSRF token: create one if it doesn't exist
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
